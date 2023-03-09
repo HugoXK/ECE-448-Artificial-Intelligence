@@ -86,7 +86,41 @@ def dfs(maze):
 def greedy(maze):
     # TODO: Write your code here
     # return path, num_states_explored
-    return [], 0
+    path = []
+    num_states_explored = 0
+    visited = []
+    to_be_visited = queue.PriorityQueue()
+    start = maze.getStart()
+    to_be_visited.put((1, start))
+    objectives = maze.getObjectives()
+    path_stack = {start: None}
+
+    while not to_be_visited.empty():
+        curr_state = to_be_visited.get()
+        curr_pos = curr_state[1]
+        if curr_pos not in visited:
+            visited.append(curr_pos)
+            num_states_explored += 1
+
+            if maze.isObjective(curr_pos[0], curr_pos[1]):
+                end_state = curr_pos
+                break
+
+            for neighbor in maze.getNeighbors(curr_pos[0], curr_pos[1]):
+                if neighbor not in visited:
+                    min_heuristic = sys.maxsize
+                    for objective in objectives:
+                        heuristic = abs(neighbor[0] - objective[0]) + abs(neighbor[1] - objective[1])
+                        if heuristic < min_heuristic:
+                            min_heuristic = heuristic
+                    to_be_visited.put((min_heuristic, neighbor))
+                    path_stack[neighbor] = curr_pos
+                    
+    while end_state:
+        path.insert(0, end_state)
+        end_state = path_stack[end_state]
+
+    return path, num_states_explored
 
 
 def astar(maze):
