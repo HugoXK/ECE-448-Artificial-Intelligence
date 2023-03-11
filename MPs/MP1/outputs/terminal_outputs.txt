@@ -80,23 +80,24 @@ States Explored: 454
 pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
 Hello from the pygame community. https://www.pygame.org/contribute.html
 Results
-Path Length: 183
-States Explored: 1247
+Path Length: 175
+States Explored: 1246
 (base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/openMaze.txt --method astar
 pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
 Hello from the pygame community. https://www.pygame.org/contribute.html
 Results
 Path Length: 55
-States Explored: 518
-(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/mediumMaze.txt --method astar 
+States Explored: 211
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/mediumMaze.txt --method astar
 pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
 Hello from the pygame community. https://www.pygame.org/contribute.html
 Results
-Path Length: 71
-States Explored: 221
+Path Length: 69
+States Explored: 219
 (base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/bigMaze.txt --method astar
 pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
 Hello from the pygame community. https://www.pygame.org/contribute.html
 Results
 Path Length: 211
-States Explored: 549
+States Explored: 542
+(base) xuke@vpnpool-10-250-9-216 MP1 % 

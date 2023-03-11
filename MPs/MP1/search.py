@@ -136,40 +136,38 @@ def greedy(maze):
 
 def astar(maze):
     start = maze.getStart()
-    to_visit = queue.PriorityQueue()
-    to_visit.put((1, start, 0)) #(priority, (x,  y), g)
-    path_tracker = {start: None}
-    path = []
-    visited = []
-    num_states_explored = 0
-    end_state = (0, 0)
-    objectives = maze.getObjectives()
+    frontier = queue.PriorityQueue() # frontier, sorted queue, (Priority,Data)
+    frontier.put((cost(maze,start,[]), [start])) #(priority, path)
+    visited = set()# set of points that has been visited
+    while not frontier.empty():
+        #   current path & point
+        curr_path = frontier.get()[1]
+        curr_row, curr_col = curr_path[-1]
+        curr_point = (curr_row, curr_col)
+        #  if find the end
+        if maze.isObjective(curr_row, curr_col):
+            return curr_path, len(visited)
+        #  this point has been visited
+        if curr_point in visited:
+            continue
+        visited.add(curr_point)
+        #  add new point into new path
+        for new_point in maze.getNeighbors(curr_row, curr_col):
+            if new_point not in visited:
+                frontier.put((cost(maze,new_point,curr_path), curr_path + [new_point]))
+    return [], 0
 
-    while not to_visit.empty():
-        curr_state = to_visit.get()
+def h_dist(maze,point):
+    ends = maze.getObjectives()
+    h_min = sys.maxsize
+    for end in ends:
+        h= abs(point[0] - end[0]) + abs(point[1] - end[1])
+        if h < h_min:
+            h_min = h
+    return h_min
 
-        if curr_state[1] not in visited:
-
-            visited.append(curr_state[1])
-            num_states_explored += 1
-
-            if maze.isObjective(curr_state[1][0], curr_state[1][1]):
-                end_state = curr_state[1]
-                break
-
-            neighbors = maze.getNeighbors(curr_state[1][0], curr_state[1][1])
-            for neighbor in neighbors:
-                if neighbor not in visited and maze.isValidMove(neighbor[0], neighbor[1]):
-                    min_heuristic = sys.maxsize
-                    for objective in objectives:
-                        heuristic = abs(neighbor[0] - objective[0]) + abs(neighbor[1] - objective[1])
-                        if heuristic < min_heuristic:
-                            min_heuristic = heuristic                    
-                    to_visit.put((min_heuristic + curr_state[2] + 1, neighbor, curr_state[2] + 1))
-                    path_tracker[neighbor] = curr_state[1]
-
-    while end_state:
-        path.insert(0, end_state)
-        end_state = path_tracker[end_state]
-
-    return path, num_states_explored
+def g_dist(path):
+    return len(path)
+    
+def cost(maze,point,path):
+    return h_dist(maze,point)+g_dist(path)
