@@ -1,0 +1,102 @@
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/maze.txt --method bfs
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 175
+States Explored: 1283
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/openMaze.txt --method bfs
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 55
+States Explored: 682
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/mediumMaze.txt --method bfs 
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 69
+States Explored: 269
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/bigMaze.txt --method bfs
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 211
+States Explored: 619
+
+
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/maze.txt --method dfs
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 525
+States Explored: 880
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/openMaze.txt --method dfs
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 299
+States Explored: 650
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/mediumMaze.txt --method dfs
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 131
+States Explored: 147
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/bigMaze.txt --method dfs
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 211
+States Explored: 427
+
+
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/maze.txt --method greedy      
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 277
+States Explored: 457
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/openMaze.txt --method greedy  
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 55
+States Explored: 212
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/mediumMaze.txt --method greedy
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 153
+States Explored: 158
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/bigMaze.txt --method greedy   
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 211
+States Explored: 454
+
+
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/maze.txt --method astar
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 183
+States Explored: 1247
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/openMaze.txt --method astar
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 55
+States Explored: 518
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/mediumMaze.txt --method astar 
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 71
+States Explored: 221
+(base) xuke@vpnpool-10-250-9-216 MP1 % python mp1.py maps/bigMaze.txt --method astar
+pygame 2.2.0 (SDL 2.0.22, Python 3.9.13)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Results
+Path Length: 211
+States Explored: 549

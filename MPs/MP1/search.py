@@ -58,8 +58,6 @@ def bfs(maze):
 
 
 def dfs(maze):
-    # TODO: Write your code here
-    # return path, num_states_explored
     path_stack = []
     visited = []
     num_states_explored = 0
@@ -84,8 +82,13 @@ def dfs(maze):
 
 
 def greedy(maze):
-    # TODO: Write your code here
-    # return path, num_states_explored
+    # Initilization
+
+    # path: a list to record the exact path out of the given maze
+    # num_states_explored: a counter to record number of points considered
+    # visited: a list to record the all points considered
+    # to_be_visited: a priority queue to select the choice with least costs at each step
+    # path_stack: a dictionary to record the pair of points with its neighbor during the exploration
     path = []
     num_states_explored = 0
     visited = []
@@ -95,27 +98,35 @@ def greedy(maze):
     objectives = maze.getObjectives()
     path_stack = {start: None}
 
+    # Forward Propagation
     while not to_be_visited.empty():
         curr_state = to_be_visited.get()
         curr_pos = curr_state[1]
+
+        # If unvisited, then explore this position
         if curr_pos not in visited:
             visited.append(curr_pos)
             num_states_explored += 1
 
+            #  If the goal is reached, exit the loop
             if maze.isObjective(curr_pos[0], curr_pos[1]):
                 end_state = curr_pos
                 break
 
+            # Find all the neighbors of current position, then explore
             for neighbor in maze.getNeighbors(curr_pos[0], curr_pos[1]):
+                # For all potential unvisited neighbors, select the one with least cost (in this case manhattan distance)
                 if neighbor not in visited:
                     min_heuristic = sys.maxsize
                     for objective in objectives:
                         heuristic = abs(neighbor[0] - objective[0]) + abs(neighbor[1] - objective[1])
                         if heuristic < min_heuristic:
                             min_heuristic = heuristic
+                    # Put neighbors back on priority queue and sort based on their cost (distance)
                     to_be_visited.put((min_heuristic, neighbor))
                     path_stack[neighbor] = curr_pos
-                    
+    # Backward Tracing   
+    # From the objective position to walk backward toward initial position             
     while end_state:
         path.insert(0, end_state)
         end_state = path_stack[end_state]
@@ -124,8 +135,6 @@ def greedy(maze):
 
 
 def astar(maze):
-    # TODO: Write your code here
-    # return path, num_states_explored
     start = maze.getStart()
     to_visit = queue.PriorityQueue()
     to_visit.put((1, start, 0)) #(priority, (x,  y), g)
@@ -134,6 +143,7 @@ def astar(maze):
     visited = []
     num_states_explored = 0
     end_state = (0, 0)
+    objectives = maze.getObjectives()
 
     while not to_visit.empty():
         curr_state = to_visit.get()
@@ -150,7 +160,12 @@ def astar(maze):
             neighbors = maze.getNeighbors(curr_state[1][0], curr_state[1][1])
             for neighbor in neighbors:
                 if neighbor not in visited and maze.isValidMove(neighbor[0], neighbor[1]):
-                    to_visit.put((manhattan_dist(neighbor, maze) + curr_state[2] + 1, neighbor, curr_state[2] + 1))
+                    min_heuristic = sys.maxsize
+                    for objective in objectives:
+                        heuristic = abs(neighbor[0] - objective[0]) + abs(neighbor[1] - objective[1])
+                        if heuristic < min_heuristic:
+                            min_heuristic = heuristic                    
+                    to_visit.put((min_heuristic + curr_state[2] + 1, neighbor, curr_state[2] + 1))
                     path_tracker[neighbor] = curr_state[1]
 
     while end_state:
@@ -158,13 +173,3 @@ def astar(maze):
         end_state = path_tracker[end_state]
 
     return path, num_states_explored
-
-def manhattan_dist(pos, maze):
-    objectives = maze.getObjectives()
-    min_heuristic = sys.maxsize
-    for objective in objectives:
-        heuristic = abs(pos[0] - objective[0]) + abs(pos[1] - objective[1])
-        if heuristic < min_heuristic:
-            min_heuristic = heuristic
-
-    return min_heuristic

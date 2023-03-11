@@ -204,8 +204,8 @@ if __name__ == "__main__":
                         help='fps for the display - default 30')
     parser.add_argument('--human', default = False, action = "store_true",
                         help='flag for human playable - default False')
-    parser.add_argument('--save', dest="save", type=str, default = None, 
-                        help='save output to image file - default not saved')
+    parser.add_argument('--save', dest="save", type=str, default = "outputs/output.png", 
+                        help='save output to image file - default saved')
     
 
     args = parser.parse_args()
