@@ -63,6 +63,7 @@ def dfs(maze):
     num_states_explored = 0
     path_stack.append([maze.getStart()])
     while path_stack:
+        #         current path & point
         path = path_stack.pop()
         cur_loc = path[-1]
         if cur_loc in visited:
@@ -70,8 +71,10 @@ def dfs(maze):
         num_states_explored += 1
         visited.append(cur_loc)
         cur_row, cur_col = cur_loc
+         #  if find the end
         if maze.isObjective(cur_row, cur_col):
             return path, num_states_explored
+         #  add no_visited neighbor into new path
         for neighbor in maze.getNeighbors(cur_row, cur_col):
             if neighbor not in visited:
                 new_path = path.copy()
