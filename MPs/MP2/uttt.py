@@ -74,6 +74,40 @@ class ultimateTicTacToe:
         """
         #YOUR CODE HERE
         score=0
+        # 1) First Rule: If the defensive agent wins (forms three-in-a-row), set the utility score to be - 10000.
+        # 2) Second Rule: For each unblocked two-in-a-row, increment the utility score by 500; 
+        #              For each prevention, increment the utility score by 100.
+        # 3) Third Rule: For each corner taken by defensive agent, decrement the utility score by 30.
+        if isMax:
+            # 1
+            if self.checkWinner() == 1: 
+                return 10000
+            
+            # 2
+            score += 100 * self.twoInARow(self.maxPlayer, '_')
+            score += 500 * self.twoInARow(self.maxPlayer, self.minPlayer)
+
+            if score != 0: 
+                return score
+
+            # 3
+            score += 30 * self.countCorners(self.maxPlayer)
+
+        else:
+            # 1
+            if self.checkWinner() == -1: 
+                return -10000
+
+            # 2
+            score -= 100 * self.twoInARow(self.minPlayer, '_')
+            score -= 500 * self.twoInARow(self.minPlayer, self.maxPlayer)
+
+            if score != 0: 
+                return score
+
+            # 3
+            score -= 30 * self.countCorners(self.minPlayer)
+
         return score
 
     def checkMovesLeft(self):
@@ -119,6 +153,7 @@ class ultimateTicTacToe:
         if (depth == self.maxDepth) or (self.checkMovesLeft() == 0) or (self.checkWinner() != 0): 
             return self.evaluatePredifined(not isMax)
 
+        # MaxPlayer  
         if isMax:
             bestValue = -self.winnerMaxUtility
             possibleMoveOptions = self.possibleMoves(currBoardIdx)
@@ -129,7 +164,7 @@ class ultimateTicTacToe:
                 if (bestValue >= beta): 
                     return bestValue
                 alpha = max(bestValue, alpha)
-
+        # MinPlayer
         else: 
             bestValue = -self.winnerMinUtility
             possibleMoveOptions = self.possibleMoves(currBoardIdx)
