@@ -100,6 +100,7 @@ class ultimateTicTacToe:
         winner=0
         return 0
 
+
     def alphabeta(self,depth,currBoardIdx,alpha,beta,isMax):
         """
         This function implements alpha-beta algorithm for ultimate tic-tac-toe game.
@@ -114,8 +115,33 @@ class ultimateTicTacToe:
         bestValue(float):the bestValue that current player may have
         """
         #YOUR CODE HERE
-        bestValue=0.0
-        return bestValue
+        self.expandedNodes += 1
+        if (depth == self.maxDepth) or (self.checkMovesLeft() == 0) or (self.checkWinner() != 0): 
+            return self.evaluatePredifined(not isMax)
+
+        if isMax:
+            bestValue = -self.winnerMaxUtility
+            possibleMoveOptions = self.possibleMoves(currBoardIdx)
+            for moveOption in possibleMoveOptions:
+                self.board[moveOption[0]][moveOption[1]] = self.maxPlayer
+                bestValue = max(bestValue, self.alphabeta(depth+1, (moveOption[0]%3)*3 + moveOption[1]%3, alpha, beta, not isMax))
+                self.board[moveOption[0]][moveOption[1]] = '_'
+                if (bestValue >= beta): 
+                    return bestValue
+                alpha = max(bestValue, alpha)
+
+        else: 
+            bestValue = -self.winnerMinUtility
+            possibleMoveOptions = self.possibleMoves(currBoardIdx)
+            for moveOption in possibleMoveOptions:
+                self.board[moveOption[0]][moveOption[1]] = self.minPlayer
+                bestValue = min(bestValue, self.alphabeta(depth+1, (moveOption[0]%3)*3 + moveOption[1]%3, alpha, beta, not isMax))
+                self.board[moveOption[0]][moveOption[1]] = '_'
+                if (bestValue <= alpha): 
+                    return bestValue
+                beta = min(bestValue, beta)
+
+        return 
 
     def minimax(self, depth, currBoardIdx, isMax):
         """
