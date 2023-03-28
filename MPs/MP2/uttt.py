@@ -141,6 +141,40 @@ class ultimateTicTacToe:
         """
         #YOUR CODE HERE
         score=0
+        # 1) First Rule: If the defensive agent wins (forms three-in-a-row), set the utility score to be - 10000.
+        # 2) Second Rule: For each unblocked two-in-a-row, increment the utility score by 500; 
+        #              For each prevention, increment the utility score by 100.
+        # 3) Third Rule: For each corner taken by defensive agent, decrement the utility score by 30.
+        if isMax:
+            # 1
+            if self.checkWinner() == 1: 
+                return 10000
+            
+            # 2
+            score += 100 * self.twoInARow(self.maxPlayer, '_')
+            score += 500 * self.twoInARow(self.maxPlayer, self.minPlayer)
+
+            if score != 0: 
+                return score
+
+            # 3
+            score += 30 * self.countCorners(self.maxPlayer)
+
+        else:
+            # 1
+            if self.checkWinner() == -1: 
+                return -10000
+
+            # 2
+            score -= 100 * self.twoInARow(self.minPlayer, '_')
+            score -= 500 * self.twoInARow(self.minPlayer, self.maxPlayer)
+
+            if score != 0: 
+                return score
+
+            # 3
+            score -= 30 * self.countCorners(self.minPlayer)
+
         return score
 
     def checkMovesLeft(self):
@@ -194,9 +228,7 @@ class ultimateTicTacToe:
                 return -1
         return 0
 
-        
-
-    def alphabeta(self, depth, currBoardIdx, alpha, beta, isMax):
+    def alphabeta(self,depth,currBoardIdx,alpha,beta,isMax):
         """
         This function implements alpha-beta algorithm for ultimate tic-tac-toe game.
         input args:
@@ -210,8 +242,34 @@ class ultimateTicTacToe:
         best_value(float):the best_value that current player may have
         """
         #YOUR CODE HERE
-        bestValue=0.0
-        return bestValue
+        self.expandedNodes += 1
+        if (depth == self.maxDepth) or (self.checkMovesLeft() == 0) or (self.checkWinner() != 0): 
+            return self.evaluatePredifined(not isMax)
+
+        # MaxPlayer  
+        if isMax:
+            bestValue = -self.winnerMaxUtility
+            possibleMoveOptions = self.possibleMoves(currBoardIdx)
+            for moveOption in possibleMoveOptions:
+                self.board[moveOption[0]][moveOption[1]] = self.maxPlayer
+                bestValue = max(bestValue, self.alphabeta(depth+1, (moveOption[0]%3)*3 + moveOption[1]%3, alpha, beta, not isMax))
+                self.board[moveOption[0]][moveOption[1]] = '_'
+                if (bestValue >= beta): 
+                    return bestValue
+                alpha = max(bestValue, alpha)
+        # MinPlayer
+        else: 
+            bestValue = -self.winnerMinUtility
+            possibleMoveOptions = self.possibleMoves(currBoardIdx)
+            for moveOption in possibleMoveOptions:
+                self.board[moveOption[0]][moveOption[1]] = self.minPlayer
+                bestValue = min(bestValue, self.alphabeta(depth+1, (moveOption[0]%3)*3 + moveOption[1]%3, alpha, beta, not isMax))
+                self.board[moveOption[0]][moveOption[1]] = '_'
+                if (bestValue <= alpha): 
+                    return bestValue
+                beta = min(bestValue, beta)
+
+        return 
 
     def minimax(self, depth, currBoardIdx, isMax):
         """
