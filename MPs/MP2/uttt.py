@@ -145,36 +145,66 @@ class ultimateTicTacToe:
         # 2) Second Rule: For each unblocked two-in-a-row, increment the utility score by 500; 
         #              For each prevention, increment the utility score by 100.
         # 3) Third Rule: For each corner taken by defensive agent, decrement the utility score by 30.
+        # 1st
+        if self.checkWinner() == 1 and isMax:  # defensive
+            return self.winnerMinUtility
+        elif self.checkWinner() == -1 and not isMax:  # offensive
+            return self.winnerMaxUtility
+
+        # 2nd
+        score = 0
+        count_unblocked = 0  # unblocked 2 in row
+        count_prevention = 0  # prevent 2 in row
+        count_2 = 0 # count for unblocked 2 in row and prevention, sum of both cases
+        
         if isMax:
-            # 1
-            if self.checkWinner() == 1: 
-                return 10000
-            
-            # 2
-            score += 100 * self.twoInARow(self.maxPlayer, '_')
-            score += 500 * self.twoInARow(self.maxPlayer, self.minPlayer)
-
-            if score != 0: 
-                return score
-
-            # 3
-            score += 30 * self.countCorners(self.maxPlayer)
-
+            curr_player = self.minPlayer
+            oppo_player = self.maxPlayer
         else:
-            # 1
-            if self.checkWinner() == -1: 
-                return -10000
+            curr_player = self.maxPlayer
+            oppo_player = self.minPlayer       
 
-            # 2
-            score -= 100 * self.twoInARow(self.minPlayer, '_')
-            score -= 500 * self.twoInARow(self.minPlayer, self.maxPlayer)
+        for i in range(9):
+            row, col = self.globalIdx[i]
+            # Rows
+            for j in range(3):
+                rows = [self.board[row+j][col], self.board[row+j][col+1], self.board[row+j][col+2]]
+                if rows.count(curr_player) == 2 :
+                    count_2 += 1 # count for 2 in the same line
+                    count_prevention += rows.count(oppo_player) # if 1, prevent, increment
+            # Columns
+            # for j in range(3):
+                cols = [self.board[row][col+j], self.board[row+1][col+j], self.board[row+2][col+j]]
+                if cols.count(curr_player) == 2 :
+                    count_2 += 1
+                    count_prevention += cols.count(oppo_player)
 
-            if score != 0: 
-                return score
+            # Diagonals
+            diagonal = [self.board[row][col], self.board[row+1][col+1], self.board[row+2][col+2]]
+            if diagonal.count(curr_player) == 2 :
+                count_2 += 1
+                count_prevention += diagonal.count(oppo_player)
+            
+            diagonal = [self.board[row+2][col], self.board[row+1][col+1], self.board[row][col+2]]
+            if diagonal.count(curr_player) == 2 :
+                count_2 += 1
+                count_prevention += diagonal.count(oppo_player)
 
-            # 3
-            score -= 30 * self.countCorners(self.minPlayer)
+        count_unblocked = count_2 - count_prevention
+        if isMax:
+            score += self.twoInARowMinUtility * count_unblocked + self.preventThreeInARowMinUtility * count_prevention
+        else:
+            score += self.twoInARowMaxUtility * count_unblocked + self.preventThreeInARowMaxUtility * count_prevention
 
+        # 3rd
+        if score == 0:
+            for i in range(9):
+                row, col = self.globalIdx[i]
+                for y, x in [(row, col), (row+2, col), (row, col+2), (row+2, col+2)]:
+                    if self.board[y][x] == self.maxPlayer and isMax:
+                        score += self.cornerMinUtility
+                    elif self.board[y][x] == self.minPlayer and not isMax:
+                        score += self.cornerMaxUtility
         return score
 
     def checkMovesLeft(self):
