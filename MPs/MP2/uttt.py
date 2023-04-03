@@ -616,7 +616,6 @@ class ultimateTicTacToe:
                                     currentBestValue = currentValue
                                     bestMoveOption = (i, j) 
 
-                    # Update the whole game board
                     self.board[bestMoveOption[0]][bestMoveOption[1]] = currentPlayer
             
                 else: # Human
@@ -630,7 +629,6 @@ class ultimateTicTacToe:
                         Y = int(input("Enter Y (0, 1, 2) coordinate:"))
                     bestMoveOption = (row+X, col+Y)
 
-                    # Update the whole game board
                     self.board[bestMoveOption[0]][bestMoveOption[1]] = currentPlayer
             
                 gameBoards.append(self.board)
