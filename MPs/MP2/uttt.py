@@ -427,7 +427,7 @@ class ultimateTicTacToe:
         winner = self.checkWinner()
         return gameBoards, bestMove, expandedNodes, bestValue, winner
 
-    def playGameYourAgent(self):
+    def playGameYourAgent(self,maxFirst,isMinimaxOffensive,isMinimaxDefensive):
         """
         This function implements the processes of the game of your own agent vs predifined offensive agent.
         input args:
@@ -503,7 +503,7 @@ class ultimateTicTacToe:
         return gameBoards, bestMove, winner
 
 
-    def playGameHuman(self):
+    def playGameHuman(self,maxFirst,isHumanOffensive,isAgentMinimax):
         """
         This function implements the processes of the game of your own agent vs a human.
         output:
@@ -515,6 +515,97 @@ class ultimateTicTacToe:
         bestMove=[]
         gameBoards=[]
         winner=0
+        expandedNodes=[]
+
+        self.currPlayer = maxFirst
+        currentBoardIdx = self.startBoardIdx
+        alpha = -self.winnerMaxUtility 
+        beta = -self.winnerMinUtility
+        move = 0
+
+        if isHumanOffensive:
+            while self.checkMovesLeft() and self.checkWinner() == 0:
+                if self.currPlayer:
+                    curr_player = self.maxPlayer
+                    self.printGameBoard()
+                    print("Current local board has index", currentBoardIdx)
+                    X = int(input("Enter X (0, 1, 2) coordinate:")) 
+                    Y = int(input("Enter Y (0, 1, 2) coordinate:"))
+                    while((X not in self.validSet) or (Y not in self.validSet) or (self.board[currentBoard[0]+X][currentBoard[1]+Y] != '_')):
+                        X = int(input("Wrong, enter X (0, 1, 2) coordinate:")) 
+                        Y = int(input("Enter Y (0, 1, 2) coordinate:"))
+                    bestMove = (currentBoard[0]+X, currentBoard[1]+Y)
+                                
+                else:
+                    curr_player = self.minPlayer
+                    best_value = self.winnerMinUtility
+                    row, col = self.globalIdx[currBoardIdx]
+                    for i in range(row,row+3):
+                        for j in range(col,col+3):
+                            if self.board[i][j] == '_':
+                                self.board[i][j] = curr_player
+                                if isAgentMinimax:
+                                    curr_value = self.minimax(1, self.getNextBoardIdx(i, j), not self.currPlayer)
+                                else:
+                                    curr_value = self.alphabeta(1, self.getNextBoardIdx(i, j), alpha, beta, not self.currPlayer)
+                                self.board[i][j] = '_'                      
+                                if curr_value > best_value:
+                                    best_move = (i, j)
+                                    best_value = curr_value
+                                    
+                self.board[best_move[0]][best_move[1]] = curr_player
+                currBoardIdx = self.getNextBoardIdx(best_move[0], best_move[1])
+                bestMove.append(best_move)
+                bestValue.append(best_value)
+                expandedNodes.append(self.expandedNodes)
+                gameBoards.append(self.board)
+                self.printGameBoard()
+                self.currPlayer = not self.currPlayer
+            
+            winner = self.checkWinner()
+
+        else:
+
+            while self.checkMovesLeft() and self.checkWinner() == 0:
+                if self.currPlayer:
+                    curr_player = self.minPlayer
+                    best_value = self.winnerMinUtility
+                    row, col = self.globalIdx[currBoardIdx]
+                    for i in range(row,row+3):
+                        for j in range(col,col+3):
+                            if self.board[i][j] == '_':
+                                self.board[i][j] = curr_player
+                                if isAgentMinimax:
+                                    curr_value = self.minimax(1, self.getNextBoardIdx(i, j), not self.currPlayer)
+                                else:
+                                    curr_value = self.alphabeta(1, self.getNextBoardIdx(i, j), alpha, beta, not self.currPlayer)
+                                self.board[i][j] = '_'                      
+                                if curr_value > best_value:
+                                    best_move = (i, j)
+                                    best_value = curr_value
+                                
+                else:
+                    curr_player = self.maxPlayer
+                    self.printGameBoard()
+                    print("Current local board has index", currentBoardIdx)
+                    X = int(input("Enter X (0, 1, 2) coordinate:")) 
+                    Y = int(input("Enter Y (0, 1, 2) coordinate:"))
+                    while((X not in self.validSet) or (Y not in self.validSet) or (self.board[currentBoard[0]+X][currentBoard[1]+Y] != '_')):
+                        X = int(input("Wrong, enter X (0, 1, 2) coordinate:")) 
+                        Y = int(input("Enter Y (0, 1, 2) coordinate:"))
+                    bestMove = (currentBoard[0]+X, currentBoard[1]+Y)
+                                    
+                self.board[best_move[0]][best_move[1]] = curr_player
+                currBoardIdx = self.getNextBoardIdx(best_move[0], best_move[1])
+                bestMove.append(best_move)
+                bestValue.append(best_value)
+                expandedNodes.append(self.expandedNodes)
+                gameBoards.append(self.board)
+                self.printGameBoard()
+                self.currPlayer = not self.currPlayer
+            
+            winner = self.checkWinner()
+
         return gameBoards, bestMove, winner
 
     
