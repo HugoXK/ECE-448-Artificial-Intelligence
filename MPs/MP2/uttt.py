@@ -311,7 +311,7 @@ class ultimateTicTacToe:
                     return bestValue
                 beta = min(bestValue, beta)
 
-        return 
+        return bestValue
 
     def minimax(self, depth, currBoardIdx, isMax):
         """
@@ -540,11 +540,11 @@ class ultimateTicTacToe:
 
             while ((self.checkMovesLeft() == 1) and (self.checkWinner() == 0)):
                 currentBoard = self.globalIdx[currentBoardIdx]
-            
+                row, col = self.globalIdx[currBoardIdx]            
                 if self.currPlayer == 0: 
                     currentPlayer = self.minPlayer
                     currentBestValue = -self.winnerMinUtility
-                    row, col = self.globalIdx[currBoardIdx]
+
                     for i in range(row,row+3):
                         for j in range(col,col+3):
                             if self.board[i][j] == '_':
@@ -554,7 +554,7 @@ class ultimateTicTacToe:
                                 if isAgentMinimax == 1:
                                     currentValue = self.minimax(0, ((i)%3)*3 + (j)%3, not self.currPlayer)
                         
-                                else: currentValue = self.alphabetaOwnAgentself.alphabeta(0, ((i)%3)*3 + (j)%3, alpha, beta, not self.currPlayer)
+                                else: currentValue = self.alphabeta(0, ((i)%3)*3 + (j)%3, alpha, beta, not self.currPlayer)
                     
                                 self.board[i][j] = '_'
 
@@ -571,10 +571,10 @@ class ultimateTicTacToe:
                     print("Current local board has index", currentBoardIdx)
                     X = int(input("Enter X (0, 1, 2) coordinate:")) 
                     Y = int(input("Enter Y (0, 1, 2) coordinate:"))
-                    while((X not in self.validSet) or (Y not in self.validSet) or (self.board[currentBoard[0]+X][currentBoard[1]+Y] != '_')):
+                    while((X not in (0,1,2)) or (Y not in (0,1,2)) or (self.board[row+X][col+Y] != '_')):
                         X = int(input("Wrong, enter X (0, 1, 2) coordinate:")) 
                         Y = int(input("Enter Y (0, 1, 2) coordinate:"))
-                    bestMoveOption = (currentBoard[0]+X, currentBoard[1]+Y)
+                    bestMoveOption = (row+X, col+Y)
 
                     self.board[bestMoveOption[0]][bestMoveOption[1]] = currentPlayer
 
@@ -607,8 +607,8 @@ class ultimateTicTacToe:
                                 self.board[i][j] = currentPlayer
                         
                                 if isAgentMinimax == 1:
-                                    currentValue = self.minimaxOwnAgent(0, ((i)%3)*3 + (j)%3, not self.currPlayer)
-                                else: currentValue = self.alphabetaOwnAgentself.alphabeta(0, ((i)%3)*3 + (j)%3, alpha, beta, not self.currPlayer)
+                                    currentValue = self.minimax(0, ((i)%3)*3 + (j)%3, not self.currPlayer)
+                                else: currentValue = self.alphabeta(0, ((i)%3)*3 + (j)%3, alpha, beta, not self.currPlayer)
                     
                                 self.board[i][j] = '_'
 
@@ -649,8 +649,8 @@ if __name__ == "__main__":
     uttt = ultimateTicTacToe()
 
     start = time.time()
-    # gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGamePredifinedAgent(True, False, False)
-    gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGamePredifinedAgent(True, True, True)
+    gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGamePredifinedAgent(True, True, False)
+    # gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGamePredifinedAgent(True, True, True)
 
     print("time spent: ", time.time() - start)
 
