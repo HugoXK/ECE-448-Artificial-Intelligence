@@ -279,7 +279,13 @@ class ultimateTicTacToe:
         # MaxPlayer  
         if isMax:
             bestValue = -self.winnerMaxUtility
-            possibleMoveOptions = self.possibleMoves(currBoardIdx)
+            boardIdx = self.globalIdx[currBoardIdx]
+            possibleMoveOptions = []
+            for i in range(3):
+                for j in range(3):
+                    if (self.board[boardIdx[0]+i][boardIdx[1]+j] != self.maxPlayer) and (self.board[boardIdx[0]+i][boardIdx[1]+j] != self.minPlayer):
+                        possibleMoveOptions.append((boardIdx[0]+i, boardIdx[1]+j))
+                        
             for moveOption in possibleMoveOptions:
                 self.board[moveOption[0]][moveOption[1]] = self.maxPlayer
                 bestValue = max(bestValue, self.alphabeta(depth+1, (moveOption[0]%3)*3 + moveOption[1]%3, alpha, beta, not isMax))
@@ -290,7 +296,13 @@ class ultimateTicTacToe:
         # MinPlayer
         else: 
             bestValue = -self.winnerMinUtility
-            possibleMoveOptions = self.possibleMoves(currBoardIdx)
+            boardIdx = self.globalIdx[currBoardIdx]
+            possibleMoveOptions = []
+            for i in range(3):
+                for j in range(3):
+                    if (self.board[boardIdx[0]+i][boardIdx[1]+j] != self.maxPlayer) and (self.board[boardIdx[0]+i][boardIdx[1]+j] != self.minPlayer):
+                        possibleMoveOptions.append((boardIdx[0]+i, boardIdx[1]+j))
+                        
             for moveOption in possibleMoveOptions:
                 self.board[moveOption[0]][moveOption[1]] = self.minPlayer
                 bestValue = min(bestValue, self.alphabeta(depth+1, (moveOption[0]%3)*3 + moveOption[1]%3, alpha, beta, not isMax))
