@@ -302,7 +302,7 @@ class ultimateTicTacToe:
                 for j in range(3):
                     if (self.board[boardIdx[0]+i][boardIdx[1]+j] != self.maxPlayer) and (self.board[boardIdx[0]+i][boardIdx[1]+j] != self.minPlayer):
                         possibleMoveOptions.append((boardIdx[0]+i, boardIdx[1]+j))
-                        
+
             for moveOption in possibleMoveOptions:
                 self.board[moveOption[0]][moveOption[1]] = self.minPlayer
                 bestValue = min(bestValue, self.alphabeta(depth+1, (moveOption[0]%3)*3 + moveOption[1]%3, alpha, beta, not isMax))
@@ -524,6 +524,7 @@ class ultimateTicTacToe:
         winner(int): 1 for maxPlayer is the winner, -1 for minPlayer is the winner, and 0 for tie.
         """
         #YOUR CODE HERE
+        #YOUR CODE HERE
         bestMove=[]
         gameBoards=[]
         winner=0
@@ -535,10 +536,37 @@ class ultimateTicTacToe:
         beta = -self.winnerMinUtility
         move = 0
 
-        if isHumanOffensive:
-            while self.checkMovesLeft() and self.checkWinner() == 0:
-                if self.currPlayer:
-                    curr_player = self.maxPlayer
+        if isHumanOffensive == 1:
+
+            while ((self.checkMovesLeft() == 1) and (self.checkWinner() == 0)):
+                currentBoard = self.globalIdx[currentBoardIdx]
+            
+                if self.currPlayer == 0: 
+                    currentPlayer = self.minPlayer
+                    currentBestValue = -self.winnerMinUtility
+                    row, col = self.globalIdx[currBoardIdx]
+                    for i in range(row,row+3):
+                        for j in range(col,col+3):
+                            if self.board[i][j] == '_':
+                    
+                                self.board[i][j] = currentPlayer
+                        
+                                if isAgentMinimax == 1:
+                                    currentValue = self.minimax(0, ((i)%3)*3 + (j)%3, not self.currPlayer)
+                        
+                                else: currentValue = self.alphabetaOwnAgentself.alphabeta(0, ((i)%3)*3 + (j)%3, alpha, beta, not self.currPlayer)
+                    
+                                self.board[i][j] = '_'
+
+                                if (self.currPlayer == 1 and currentValue > currentBestValue) or (self.currPlayer == 0 and currentValue < currentBestValue):
+                                    currentBestValue = currentValue
+                                    bestMoveOption = (i, j) 
+
+                    # Update the whole game board
+                    self.board[bestMoveOption[0]][bestMoveOption[1]] = currentPlayer
+            
+                else: # Human
+                    currentPlayer = self.maxPlayer
                     self.printGameBoard()
                     print("Current local board has index", currentBoardIdx)
                     X = int(input("Enter X (0, 1, 2) coordinate:")) 
@@ -546,77 +574,75 @@ class ultimateTicTacToe:
                     while((X not in self.validSet) or (Y not in self.validSet) or (self.board[currentBoard[0]+X][currentBoard[1]+Y] != '_')):
                         X = int(input("Wrong, enter X (0, 1, 2) coordinate:")) 
                         Y = int(input("Enter Y (0, 1, 2) coordinate:"))
-                    bestMove = (currentBoard[0]+X, currentBoard[1]+Y)
-                                
-                else:
-                    curr_player = self.minPlayer
-                    best_value = self.winnerMinUtility
-                    row, col = self.globalIdx[currBoardIdx]
-                    for i in range(row,row+3):
-                        for j in range(col,col+3):
-                            if self.board[i][j] == '_':
-                                self.board[i][j] = curr_player
-                                if isAgentMinimax:
-                                    curr_value = self.minimax(1, self.getNextBoardIdx(i, j), not self.currPlayer)
-                                else:
-                                    curr_value = self.alphabeta(1, self.getNextBoardIdx(i, j), alpha, beta, not self.currPlayer)
-                                self.board[i][j] = '_'                      
-                                if curr_value > best_value:
-                                    best_move = (i, j)
-                                    best_value = curr_value
-                                    
-                self.board[best_move[0]][best_move[1]] = curr_player
-                currBoardIdx = self.getNextBoardIdx(best_move[0], best_move[1])
-                bestMove.append(best_move)
-                bestValue.append(best_value)
-                expandedNodes.append(self.expandedNodes)
-                gameBoards.append(self.board)
-                self.printGameBoard()
-                self.currPlayer = not self.currPlayer
-            
-            winner = self.checkWinner()
+                    bestMoveOption = (currentBoard[0]+X, currentBoard[1]+Y)
 
+                    self.board[bestMoveOption[0]][bestMoveOption[1]] = currentPlayer
+
+                gameBoards.append(self.board)
+                expandedNodes.append(self.expandedNodes)
+                bestMove.append(bestMoveOption)
+                currentBoardIdx = (bestMoveOption[0]%3)*3 + bestMoveOption[1]%3
+                self.currPlayer = not self.currPlayer
+                self.printGameBoard()
+                move += 1
+        
+            winner = self.checkWinner()
+            self.printGameBoard()
+
+            return gameBoards, bestMove, winner, expandedNodes
+            
         else:
 
-            while self.checkMovesLeft() and self.checkWinner() == 0:
-                if self.currPlayer:
-                    curr_player = self.minPlayer
-                    best_value = self.winnerMinUtility
-                    row, col = self.globalIdx[currBoardIdx]
+            while ((self.checkMovesLeft() == 1) and (self.checkWinner() == 0)):
+                currentBoard = self.globalIdx[currentBoardIdx]
+                row, col = self.globalIdx[currBoardIdx]           
+                if self.currPlayer == 1: 
+                    currentPlayer = self.maxPlayer
+                    currentBestValue = -self.winnerMaxUtility
+
                     for i in range(row,row+3):
                         for j in range(col,col+3):
                             if self.board[i][j] == '_':
-                                self.board[i][j] = curr_player
-                                if isAgentMinimax:
-                                    curr_value = self.minimax(1, self.getNextBoardIdx(i, j), not self.currPlayer)
-                                else:
-                                    curr_value = self.alphabeta(1, self.getNextBoardIdx(i, j), alpha, beta, not self.currPlayer)
-                                self.board[i][j] = '_'                      
-                                if curr_value > best_value:
-                                    best_move = (i, j)
-                                    best_value = curr_value
-                                
-                else:
-                    curr_player = self.maxPlayer
+                    
+                                self.board[i][j] = currentPlayer
+                        
+                                if isAgentMinimax == 1:
+                                    currentValue = self.minimaxOwnAgent(0, ((i)%3)*3 + (j)%3, not self.currPlayer)
+                                else: currentValue = self.alphabetaOwnAgentself.alphabeta(0, ((i)%3)*3 + (j)%3, alpha, beta, not self.currPlayer)
+                    
+                                self.board[i][j] = '_'
+
+                                if (self.currPlayer == 1 and currentValue > currentBestValue) or (self.currPlayer == 0 and currentValue < currentBestValue):
+                                    currentBestValue = currentValue
+                                    bestMoveOption = (i, j) 
+
+                    # Update the whole game board
+                    self.board[bestMoveOption[0]][bestMoveOption[1]] = currentPlayer
+            
+                else: # Human
+                    currentPlayer = self.minPlayer
                     self.printGameBoard()
                     print("Current local board has index", currentBoardIdx)
                     X = int(input("Enter X (0, 1, 2) coordinate:")) 
                     Y = int(input("Enter Y (0, 1, 2) coordinate:"))
-                    while((X not in self.validSet) or (Y not in self.validSet) or (self.board[currentBoard[0]+X][currentBoard[1]+Y] != '_')):
+                    while(((X not in self.validSet) or (Y not in self.validSet)) or (self.board[row+X][col+Y] != '_')):
                         X = int(input("Wrong, enter X (0, 1, 2) coordinate:")) 
                         Y = int(input("Enter Y (0, 1, 2) coordinate:"))
-                    bestMove = (currentBoard[0]+X, currentBoard[1]+Y)
-                                    
-                self.board[best_move[0]][best_move[1]] = curr_player
-                currBoardIdx = self.getNextBoardIdx(best_move[0], best_move[1])
-                bestMove.append(best_move)
-                bestValue.append(best_value)
-                expandedNodes.append(self.expandedNodes)
-                gameBoards.append(self.board)
-                self.printGameBoard()
-                self.currPlayer = not self.currPlayer
+                    bestMoveOption = (row+X, col+Y)
+
+                    # Update the whole game board
+                    self.board[bestMoveOption[0]][bestMoveOption[1]] = currentPlayer
             
+                gameBoards.append(self.board)
+                expandedNodes.append(self.expandedNodes)
+                bestMove.append(bestMoveOption)
+                currentBoardIdx = (bestMoveOption[0]%3)*3 + bestMoveOption[1]%3
+                self.currPlayer = not self.currPlayer
+                self.printGameBoard()
+                move += 1
+
             winner = self.checkWinner()
+            self.printGameBoard()
 
         return gameBoards, bestMove, winner
 
