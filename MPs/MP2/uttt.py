@@ -437,9 +437,69 @@ class ultimateTicTacToe:
         winner(int): 1 for maxPlayer is the winner, -1 for minPlayer is the winner, and 0 for tie.
         """
         #YOUR CODE HERE
-        bestMove=[]
+        self.currPlayer = maxFirst
+        currBoardIdx = self.startBoardIdx
+        # self.expandedNodes = 0
+        
+        bestMove = []
+        bestValue=[]
+        expandedNodes=[]
         gameBoards=[]
-        winner=0
+        winner = 0
+        
+        alpha = self.winnerMinUtility
+        beta = self.winnerMaxUtility
+        
+        best_move=(0,0)# not used
+        
+        while self.checkMovesLeft() and self.checkWinner() == 0:
+            if self.currPlayer:
+                curr_player = self.maxPlayer
+                best_value = self.winnerMinUtility
+                row, col = self.globalIdx[currBoardIdx]
+                for i in range(row,row+3):
+                    for j in range(col,col+3):
+                        if self.board[i][j] == '_':
+                            self.board[i][j] = curr_player
+                            if isMinimaxOffensive:
+                                curr_value = self.minimax(1, self.getNextBoardIdx(i, j), not self.currPlayer)
+                            else:
+                                curr_value = self.alphabeta(1, self.getNextBoardIdx(i, j), alpha, beta, not self.currPlayer)
+                            self.board[i][j] = '_'
+                        
+                            if curr_value > best_value:
+                                best_move = (i, j)
+                                best_value = curr_value
+                            
+            else:
+                curr_player = self.minPlayer
+                best_value = self.winnerMaxUtility
+                row, col = self.globalIdx[currBoardIdx]
+                for i in range(row,row+3):
+                    for j in range(col,col+3):
+                        if self.board[i][j] == '_':
+                            self.board[i][j] = curr_player
+                            if isMinimaxDefensive:
+                                curr_value = self.minimax(1, self.getNextBoardIdx(i, j), not self.currPlayer)
+                            else:
+                                curr_value = self.alphabeta(1, self.getNextBoardIdx(i, j), alpha, beta, not self.currPlayer)
+                            self.board[i][j] = '_'
+                            
+                            if curr_value < best_value:
+                                best_move = (i, j)
+                                best_value = curr_value
+                                
+            self.board[best_move[0]][best_move[1]] = curr_player
+            currBoardIdx = self.getNextBoardIdx(best_move[0], best_move[1])
+            bestMove.append(best_move)
+            bestValue.append(best_value)
+            expandedNodes.append(self.expandedNodes)
+            gameBoards.append(self.board)
+            self.printGameBoard()
+            self.currPlayer = not self.currPlayer
+            
+
+        winner = self.checkWinner()
         return gameBoards, bestMove, winner
 
 
