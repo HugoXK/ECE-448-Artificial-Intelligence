@@ -512,7 +512,7 @@ class ultimateTicTacToe:
             
 
         winner = self.checkWinner()
-        return gameBoards, bestMove, winner
+        return gameBoards, bestMove, expandedNodes, bestValue, winner
 
     def my_minimax(self, depth, currBoardIdx, isMax):
         """
@@ -633,10 +633,11 @@ if __name__ == "__main__":
     uttt = ultimateTicTacToe()
 
     start = time.time()
-    gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGameHuman()
-    # gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGamePredifinedAgent(True, True, True)
+    gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGameYourAgent(True,True,False)
+    # gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGameHuman()
+    # gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGamePredifinedAgent(False, False, True)
 
-    print("time spent: ", time.time() - start)
+    # print("time spent: ", time.time() - start)
 
     if winner == 1:
         print("The winner is maxPlayer!!!")
