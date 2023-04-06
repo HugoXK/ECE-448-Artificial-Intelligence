@@ -607,10 +607,13 @@ class ultimateTicTacToe:
             else:
                 self.currPlayer = False
                 y, x = self.globalIdx[cur_board]
-
-                print("put in board:", cur_board)
-                x = input('x:')
-                y = input('y:')
+                print("Current local board has index", cur_board)
+                x = int(input("Enter X (0, 1, 2) coordinate:")) 
+                y = int(input("Enter Y (0, 1, 2) coordinate:"))
+                while((x not in (0,1,2)) or (y not in (0,1,2)) or (self.board[self.globalIdx[cur_board][0] + int(y)][self.globalIdx[cur_board][1] + int(x)] != '_')):
+                    x = int(input("Wrong, enter X (0, 1, 2) coordinate:")) 
+                    y = int(input("Enter Y (0, 1, 2) coordinate:"))
+                
                 put_y = self.globalIdx[cur_board][0] + int(y)
                 put_x = self.globalIdx[cur_board][1] + int(x)
                 self.board[put_y][put_x] = self.maxPlayer
