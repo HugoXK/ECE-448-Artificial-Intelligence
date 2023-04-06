@@ -100,9 +100,9 @@ if __name__ == "__main__":
     well on the pentomino set you should be fine. 
     """
     board = instances.board_6x10
-    pents = instances.dominos
-    sol_list = solve(board, pents)
-    if check_correctness(sol_list, board, pents):
+    pent = instances.pentnominos
+    sol_list = solve(board, pent)
+    if check_correctness(sol_list, board, pent):
         print("PASSED!")
     else:
         print("FAILED...")
