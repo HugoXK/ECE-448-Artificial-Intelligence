@@ -632,12 +632,13 @@ class ultimateTicTacToe:
 if __name__ == "__main__":
     uttt = ultimateTicTacToe()
 
-    start = time.time()
-    gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGameYourAgent(True,True,False)
+    # start = time.time()
+    gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGameYourAgent(True,True,True)
     # gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGameHuman()
     # gameBoards, bestMove, expandedNodes, bestValue, winner = uttt.playGamePredifinedAgent(False, False, True)
 
     # print("time spent: ", time.time() - start)
+    print(expandedNodes)
 
     if winner == 1:
         print("The winner is maxPlayer!!!")
