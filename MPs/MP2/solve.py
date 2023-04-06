@@ -27,7 +27,7 @@ def pants_transformation(pent):
     return transformation_list_no_dup
 
 
-def get_pent_idx_solve(pent):
+def get_pent_idx(pent):
     pidx = 0
     for i in range(pent.shape[0]):
         for j in range(pent.shape[1]):
@@ -47,19 +47,19 @@ def count_available(board, pent):
     count = 0
     for i in range(m-pm + 1):
         for j in range(n-pn + 1):
-            this_count = 1
-            for row in range(pm):
-                for col in range(pn):
-                    if pent[row][col] != 0:
-                        if board[i+row][j+col] != 0: # Overlap
-                            row = pm
-                            col = pn
-                            this_count = 0
+            flag_count = 1
+            for m in range(pm):
+                for n in range(pn):
+                    if pent[m][n] != 0:
+                        if board[i+m][j+n] != 0: # Overlap
+                            m = pm
+                            n = pn
+                            flag_count = 0
                             break
-            count+=this_count
-    #print("count",count)
+            if flag_count:
+                count += 1
     return count
-def check_put(board, x, y, pent):
+def fill_check(board, x, y, pent):
     m = board.shape[0]
     n = board.shape[1]
     pm = pent.shape[0]
@@ -72,8 +72,8 @@ def check_put(board, x, y, pent):
                 if board[x+row][y+col] != 0: # Overlap
                     return False
     return True
-def put(board, x, y, pent):
-    number = get_pent_idx_solve(pent)
+def fill(board, x, y, pent):
+    number = get_pent_idx(pent)
     m = board.shape[0]
     n = board.shape[1]
     pm = pent.shape[0]
@@ -85,43 +85,14 @@ def put(board, x, y, pent):
     return
 
 
-def area(r,c , seen, board, m, n):
-    if not ( 0 <= r < m and 0 <= c < n and (r, c) not in seen and board[r][c] == 0):
-        return 0
-    seen.add((r,c))
-    return (1 + area(r+1, c, seen, board ,m, n) + area(r-1, c, seen, board ,m, n) +
-                area(r, c-1, seen, board ,m, n) + area(r, c+1, seen, board ,m, n))
-
-def check(board):
-    seen = set()
-    m = board.shape[0]
-    n = board.shape[1]
-
-    visited = np.zeros((m,n))
-    result  = m*n
-    for i in range(m):
-        for j in range(n):
-
-            if board[i][j] == 0 and (i,j) not in seen:
-                area = area(i, j, seen, m, n)
-                if area % 5 != 0:
-                    return False
-    return True
-
-def can_fill(board, i, j, trans_p):
-    pm = trans_p.shape[0]
-    pn = trans_p.shape[1]
-    m = board.shape[0]
-    n = board.shape[1]
-    if (i + pm > m or j + pn > n):
-        return False
+def area(r,c , vitisted, board, m, n):
+    if ( 0 <= r < m and 0 <= c < n and (r, c) not in vitisted and board[r][c] == 0):
+        vitisted.add((r,c))
     else:
-        #sub_board = board[i:i+pm][j:j+pn]
-        for ii in range(pm):
-            for jj in range(pn):
-                if (board[i+ii][j+jj] == 0 and trans_p[i][j] == 0) or (board[i+ii][j+jj] != 0 and trans_p[i][j] != 0):
-                    return False
-    return True
+        return 0
+    
+    return (1 + area(r+1, c, vitisted, board ,m, n) + area(r-1, c, vitisted, board ,m, n) +
+                area(r, c-1, vitisted, board ,m, n) + area(r, c+1, vitisted, board ,m, n))
 
 def recursive(board, remaining_orig, pents, transform, size):
     if len(remaining_orig) == 0:
@@ -129,43 +100,38 @@ def recursive(board, remaining_orig, pents, transform, size):
 
     remaining = remaining_orig.copy()
 
-    seen = set()
+    visited = set()
     m = board.shape[0]
     n = board.shape[1]
 
-
-    # visited = np.zeros((m,n))
     result  = m*n
     for j in range(n):
         for i in range(m):
-            if board[i][j] == 0 and (i,j) not in seen:
-                area_size = area(i, j, seen, board, m, n)
+            if board[i][j] == 0 and (i,j) not in visited:
+                area_size = area(i, j, visited, board, m, n)
                 if area_size % size != 0:
                     return []
+    single = True
     if size == 3:
         single = False
-        for trii in remaining_orig:
-            tri = pents[trii]
+        for tri_idx in remaining_orig:
+            tri = pents[tri_idx]
             if tri.shape[0] == 1 or tri.shape[1] == 1 :
                 single = True
         i = m - 2
 
         if not single:
-            i = 0
             for j in range(n - 1) :
                 if board[1][j] != 0 and board[1][j + 1] != 0 and board[0][j] == 0 and board[0][j + 1] == 0 :
                     return []
-            i = m - 1
             for j in range(n - 1) :
-                if board[m - 2][j] != 0 and board[m - 2][j + 1] != 0 and board[i][j] == 0 and board[i][j + 1] == 0 :
+                if board[m - 2][j] != 0 and board[m - 2][j + 1] != 0 and board[m - 1][j] == 0 and board[m - 1][j + 1] == 0 :
                     return []
-            j = 0
             for i in range(m - 1):
                 if board[i][1] != 0 and board[i + 1][1] != 0 and board[i][0] == 0 and board[i + 1][0] == 0 :
                     return []
-            j = n - 1
             for i in range(m - 1):
-                if board[i][n - 2] != 0 and board[i + 1][n - 2] != 0 and board[i][j] == 0 and board[i + 1][j] == 0 :
+                if board[i][n - 2] != 0 and board[i + 1][n - 2] != 0 and board[i][n - 1] == 0 and board[i + 1][n - 1] == 0 :
                     return []
             for i in range(m - 2):
                 for j in range(n - 2) :
@@ -188,9 +154,9 @@ def recursive(board, remaining_orig, pents, transform, size):
     for i in range(m):
         for j in range(n):
             for var in trans_list:
-                if check_put(board, i, j, var):
+                if fill_check(board, i, j, var):
                     recur_board = board.copy()
-                    put(recur_board, i, j, var)
+                    fill(recur_board, i, j, var)
                     recur_remain = remaining.copy()
                     recur_remain.remove(var_idx)
                     recur_result = recursive(recur_board, recur_remain, pents, transform, size)
@@ -201,18 +167,13 @@ def recursive(board, remaining_orig, pents, transform, size):
     return []
 
 def solve(board, pents):
-
-    # m = board.shape[0]
-    # n = board.shape[1]
     sol_board = 1 - board
 
     # create a dictonary to store all the transformations of each pentomino
     transform = {}
     for i, pentomino in enumerate(pents):
         transform[i] = pants_transformation(pentomino)
-    # for k, v in transform.items():
-    #     print(k)
-    #     print(v)
+
     num_pents = len(pents)
     tile = pents[0]
     size = 0
@@ -229,7 +190,6 @@ def solve(board, pents):
     elif size == 2:
         solution = recursive(sol_board, remaining_orig, pents, transform, 2)
     solution.pop(0)
-    # print ("solution:", solution)
     print ("board size:", board.shape)
     return solution
 
