@@ -1,0 +1,40 @@
+\subsection*{1. Plot your confusion matrix. This is a 14x14 matrix whose entry in row r and column c is the percentage of test text from class r that are classified as class c.}
+
+\lstinputlisting[
+    % style       =   Python,
+    caption     =   {\bf confusion matrix}
+    % label       =   {modified code}
+]{results/p2/cm.tex}
+
+
+\subsection*{2. Accuracy, recall, and F1 scores for each of the classes on the development set.}
+
+\lstinputlisting[
+    % style       =   Python,
+    caption     =   {\bf results with prior}
+    % label       =   {modified code}
+]{results/p2/has_prior.tex}
+
+\subsection*{3. Top 20 feature words of each of the classes.}
+
+\lstinputlisting[
+    % style       =   Python,
+    caption     =   {\bf find number}
+    % label       =   {modified code}
+]{results/p2/top_20.tex}
+
+\subsection*{4. Calculate your accuracy without including the class prior into the Naive Bayes equation i.e. Only computing the ML inference of each instance. Report the change in accuracy numbers, if any. Also state your reasoning for this observation. Is including the class prior always beneficial? Change your class prior to a uniform distribution. What is the change in result?}
+\lstinputlisting[
+    % style       =   Python,
+    caption     =   {\bf results without prior}
+    % label       =   {modified code}
+]{results/p2/no_prior.tex}
+
+Change in accuracy numbers: 0.8240 $\to$ 0.8344. Increased.\\
+Reason for this observation: In general, including the class prior can improve the accuracy of Naive Bayes by incorporating prior knowledge and balancing the class distribution. However, if the class prior is significantly different from the true class distribution, it may lead to biased predictions.Changing the class prior to a uniform distribution means assuming that all classes have an equal probability of occurrence. This can be useful in cases where the class distribution is unknown or irrelevant. In this case, the impact on the accuracy of Naive Bayes depends on the dataset and the quality of the features. In some cases, it may improve the accuracy by avoiding bias towards any specific class, while in others, it may decrease the accuracy by oversimplifying the class distribution.\\
+As the prior not included, it can be treat as a uniform distribution with probability 0. Which is equivalent to a uniform distribution of classes. As a result, it may improve the accuracy by avoiding bias towards any specific class.
+Including the class prior is not always beneficial.\\
+Change your class prior to a uniform distribution: Same with the result without prior. It does not change the result because we are sorting the probabilities of these classes. A uniform distribution will not change the difference between probabilities.
+
+
+
