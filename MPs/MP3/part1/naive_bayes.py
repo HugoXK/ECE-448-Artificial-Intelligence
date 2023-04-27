@@ -37,7 +37,17 @@ class NaiveBayes(object):
 		"""
 
 		# YOUR CODE HERE
-		pass
+		for label in range(len(train_label)):
+			self.prior[train_label[label]] += 1
+			for pixel in range(len(train_set[label])):
+				self.likelihood[pixel, int(train_set[label][pixel]), train_label[label]] += 1
+
+		k = 1
+		for i in range(self.num_class):
+			self.likelihood[:,:,i] = (self.likelihood[:,:,i]+k)/(self.prior[i]+self.num_value*k)
+
+		self.likelihood = np.log(self.likelihood)
+		self.prior = np.log(self.prior/len(train_label)) 
 
 	def test(self,test_set,test_label):
 		""" Test the trained naive bayes model (self.prior and self.likelihood) on testing dataset,
@@ -56,12 +66,24 @@ class NaiveBayes(object):
 
 		# YOUR CODE HERE
 
-		accuracy = 0
+		counter = 0
 		pred_label = np.zeros((len(test_set)))
 
-		pass
+		for i in range(len(test_label)): 
+ 			evaluation = np.zeros(self.num_class) 
 
+ 			for j in range(self.num_class): 
+ 				evaluation[j] = self.prior[j] 
+
+ 				for k in range(self.feature_dim): 
+ 					evaluation[j] += self.likelihood[k, int(test_set[i][k]), j] 
+
+ 			pred_label[i] = np.argmax(evaluation) 
+ 			if (pred_label[i] == test_label[i]): counter += 1 
+		
+		accuracy = counter/len(test_set)  
 		return accuracy, pred_label
+
 
 
 	def save_model(self, prior, likelihood):
@@ -94,6 +116,6 @@ class NaiveBayes(object):
 	    """
 	    # YOUR CODE HERE
 	    
-	    feature_likelihoods = np.zeros((likelihood.shape[0],likelihood.shape[2]))
+	    feature_likelihoods = np.sum(np.exp(likelihood[:,128:,:]), axis = 1)
 
 	    return feature_likelihoods
