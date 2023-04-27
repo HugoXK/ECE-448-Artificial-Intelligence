@@ -17,6 +17,13 @@ def logistic(X, y):
     # YOUR CODE HERE
     # begin answer
     # TODO
+    alpha = 0.01
+    epoch = 10000
+    for k in range(epoch):
+        predict_train = sigmoid(np.matmul(w.T, np.vstack((np.ones((1, N)), X))))
+        gradient = np.dot(np.vstack((np.ones((1, N)), X)),(predict_train-y).T)/y.size
+        w -= alpha * gradient
+
     # end answer
     
     return w
