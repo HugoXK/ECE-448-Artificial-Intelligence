@@ -1,0 +1,16 @@
+Yes, most of the time, the bigram model help improve accuracy.
+
+The best parameter $\lambda$ : 0.849
+Accuracy number : 0.8530020703933747
+
+\subsection*{1. Running naive Bayes on the bigram model relaxes the naive assumption of the model a bit. However, is this always a good thing? Why or why not?}
+
+In some cases, using bigrams can indeed improve the accuracy of the model, as it can capture more complex relationships between the features and the class label. 
+
+On the other hand, using bigrams can also introduce some issues. First, it can increase the dimensionality of the feature space, which can lead to the curse of dimensionality and overfitting, especially when the training data is limited. Second, bigrams may not always capture the most relevant dependencies between the words, and some of them may be rare or even nonexistent in the training data, leading to sparsity issues.
+
+Therefore, whether to use bigrams in Naive Bayes or not depends on the specific characteristics of the dataset and the task. 
+
+\subsection*{2. What would happen if we did an N-gram model where N was a really large number?}
+
+Accuracy will decrease and tend to be the same as the case when we only use the class prior to classify. Because the probabilities of N-gram tend to be 0.
