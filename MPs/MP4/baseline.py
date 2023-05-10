@@ -24,7 +24,6 @@ def baseline(train, test):
     data = {}
     count = {}
     tags = []
-    tt = ''
     # traverse all sentence
     for sentence in train:
         # traverse all word
