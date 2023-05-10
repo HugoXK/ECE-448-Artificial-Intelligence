@@ -52,9 +52,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='CS440 MP4 HMM')
-    parser.add_argument('--train', dest='training_file', type=str,
+    parser.add_argument('--train', dest='training_file', type=str,default='data/brown-training.txt',
                         help='the file of the training data')
-    parser.add_argument('--test', dest='test_file', type=str,
+    parser.add_argument('--test', dest='test_file', type=str,default='data/brown-dev.txt',
                         help='the file of the testing data')
     parser.add_argument('--algorithm', dest='algorithm', type=str, default="baseline",
                         help='which algorithm to run: baseline, viterbi_1, viterbi_2, viterbi_ec')

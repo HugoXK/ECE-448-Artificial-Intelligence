@@ -20,5 +20,46 @@ def baseline(train, test):
     output: list of sentences, each sentence is a list of (word,tag) pairs.
             E.g., [[(word1, tag1), (word2, tag2)], [(word3, tag3), (word4, tag4)]]
     '''
-    
-    return []
+
+    data = {}
+    count = {}
+    tags = []
+    tt = ''
+    # traverse all sentence
+    for sentence in train:
+        # traverse all word
+        for word in sentence:
+            # initilization: if not found before, then add
+            if data.get(word[1]) is None:
+                data[word[1]] = {}
+                count[word[1]] = 0
+                tags.append(word[1])
+            count[word[1]] += 1
+            if data[word[1]].get(word[0]) is None:
+                data[word[1]][word[0]] = 1
+            else:
+                data[word[1]][word[0]] += 1
+    # print(f'-------tags------{tags}')
+    # print(f'-------count------{count}')
+    # print(f'-------data------{data}')
+
+    # initilization: begin with the one occur most
+    common = max(count, key=count.get)
+    predicts = []
+    for i in range(len(test)):
+        # initilization: empty but one to one map space
+        predicts.append([])
+        for word in test[i]:
+            predict = common
+            # initilization: as the min occurance in count dict is 0
+            counter = -1
+            for tag in tags:
+                if data[tag].get(word) is not None:
+                    if data[tag].get(word) > counter:
+                        # replace if more likely found
+                        counter = data[tag].get(word)
+                        predict = tag
+            predicts[i].append((word, predict))
+    #print(f'-------predicts------{predicts}')
+
+    return predicts
