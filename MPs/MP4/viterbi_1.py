@@ -18,6 +18,13 @@ to predict the tag).
 import numpy as np
 import math
 
+
+
+
+def logging(log:str):
+    with open("log.txt", "a") as f:
+        print(log,file=f)
+        
 def viterbi_1(train, test):
     '''
     input:  training data (list of sentences, with tags on the words)
@@ -25,16 +32,19 @@ def viterbi_1(train, test):
     output: list of sentences with tags on the words
             E.g., [[(word1, tag1), (word2, tag2)], [(word3, tag3), (word4, tag4)]]
     '''
+    open("log.txt", "w").close()
+    
     
     START_TAG = "START"
     END_TAG = "END"
     UNKNOWN = "UNKNOWN"
+        
+    # Part1: Count occurrences of tags, tag pairs, tag/word pairs
+    print("Part1: Count occurrences of tags, tag pairs, tag/word pairs") 
     
-    # Part1: Count occurrences of tags, tag pairs, tag/word pairs  
+    tot_ini = 0 # total number of lines in train
     
-    tot_ini = 0
-    
-    tagMat = {}
+    tagMat = {} # total number of tag without START_TAG, END_TAG
     for sentence in train:
         tot_ini += 1
         for i in range(len(sentence)):
@@ -47,8 +57,8 @@ def viterbi_1(train, test):
     del tagMat[START_TAG]
     del tagMat[END_TAG]
     
-    tagPair = {START_TAG:{}}
-    twPair = {}
+    tagPair = {START_TAG:{}} # trans tag pair start from START_TAG
+    twPair = {} # emit tag-word pair
     for key in tagMat.keys():
         tagPair.setdefault(key,{})
         twPair.setdefault(key,{})
@@ -75,6 +85,7 @@ def viterbi_1(train, test):
                 wordList.append(word)
 
     # Part2: Compute smoothed probabilities
+    print("Part2: Compute smoothed probabilities") 
     
     keyList = list(tagMat.keys())
     keyNum = len(keyList)
@@ -124,6 +135,7 @@ def viterbi_1(train, test):
             logEmiss.setdefault(key,{}).update({w:math.log(pEmiss)})
 
     # # Part3: Take the log of each probability
+    print("Part3: Take the log of each probability") 
     
     # logIni = {}
     # for key in initial.keys():
@@ -132,17 +144,21 @@ def viterbi_1(train, test):
     # logTrans = {}
     # for key_1 in transition.keys():
     #     for key_2 in transition.keys():
+    #         logTrans.setdefault(key_1,{}).update({key_2:0.0})
     #         logTrans[key_1][key_2] = np.log(transition[key_1][key_2])
-    #         logTrans.setdefault(key_1,{}).update({key_2:pTrans})
+    #         # logTrans.setdefault(key_1,{}).update({key_2:pTrans})
     
     # logEmiss = {}
     # for key in emission.keys():
     #     for w in emission[key].keys():
+    #         logEmiss.setdefault(key,{}).update({w:0.0})
     #         logEmiss[key][w] = np.log(emission[key][w])
 
     # Part4: Construct the trellis. Notice that for each tag/time pair, 
     # you must store not only the probability of the best path but also 
     # a pointer to the previous tag/time pair in that path.
+    print("Part4: ")
+    
     
     retMat = []
     for item in test:
@@ -165,14 +181,16 @@ def viterbi_1(train, test):
                 word = item[t+1]
                 if word not in wordList:
                     word = UNKNOWN
-                viterbi = 0
-                backpointer = 0
+                viterbi = -math.inf
+                backpointer = -math.inf
                 for nPast in range(N):
                     keyPast = keyList[nPast]
                     ProSum = Viterbi[nPast][t-1]+logTrans[keyPast][key]+logEmiss[key][word]
+                    # logging(" Viterbi[nPast][t-1],logTrans[keyPast][key],logEmiss[key][word] is:{},{},{}\n\n".format(Viterbi[nPast][t-1],logTrans[keyPast][key],logEmiss[key][word]))
                     if ProSum > viterbi:
                         viterbi = ProSum
                         backpointer = nPast
+                    # logging("nPast,keyPast is:{},{}\n\n".format(nPast,keyPast))
                 Viterbi[n][t] = viterbi
                 Backpointer[n][t] = backpointer
                 
@@ -181,14 +199,20 @@ def viterbi_1(train, test):
         retSent = [(item[-2],keyList[TagIndex])]
         Pointer = Backpointer[TagIndex,-1]
         for t in range(T-2,-1,-1):
+            # logging("Pointer is:{}\n\n".format(Pointer))
             TagIndex = int(Pointer)
             outTuple = (item[t+1],keyList[TagIndex])
             retSent.append(outTuple)
             Pointer = Backpointer[TagIndex,t]
         
         retSent.reverse()
-        retMat.append(retSent)
+        retSent_format=[(START_TAG,START_TAG)]+retSent+[(END_TAG,END_TAG)]
+        retMat.append(retSent_format)
         
     # Part5: Return the best path through the trellis
-    
+    print("Part5: Return the best path through the trellis") 
+    # logging("retMat is:{}\n\n".format(retMat))
+    # logging("Viterbi is:{}\n\n".format(Viterbi))
+    # logging("Backpointer is:{}\n\n".format(Backpointer))
     return retMat
+
