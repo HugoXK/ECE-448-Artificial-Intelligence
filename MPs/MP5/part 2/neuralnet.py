@@ -15,9 +15,7 @@ This is the main entry point for part 2. You should only modify code
 within this file and neuralnet.py -- the unrevised staff files will be used for all other
 files and classes when code is run, so be careful to not modify anything else.
 """
-
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -44,7 +42,10 @@ class NeuralNet(nn.Module):
         """
         super(NeuralNet, self).__init__()
         self.loss_fn = loss_fn
-        raise NotImplementedError("You need to write this part!")
+        self.lrate = lrate
+        # 32 hidden units
+        self.net = torch.nn.Sequential(torch.nn.Linear(in_size, 32), torch.nn.ReLU(), torch.nn.Linear(32, out_size))
+        self.optims = torch.optim.SGD(self.get_parameters(), lr=self.lrate)
 
     # def set_parameters(self, params):
     #     """ Sets the parameters of your network.
@@ -66,8 +67,8 @@ class NeuralNet(nn.Module):
         @param x: an (N, in_size) Tensor
         @return y: an (N, out_size) Tensor of output from the network
         """
-        raise NotImplementedError("You need to write this part!")
-        return torch.ones(x.shape[0], 1)
+        y = self.net(x)
+        return y
 
     def step(self, x, y):
         """
@@ -77,8 +78,13 @@ class NeuralNet(nn.Module):
         @param y: an (N,) Tensor
         @return L: total empirical risk (mean of losses) at this timestep as a float
         """
-        raise NotImplementedError("You need to write this part!")
-        return 0.0
+        self.optims.zero_grad()
+        lossFunction = self.loss_fn(self.forward(x), y)
+        lossFunction.backward()
+        self.optims.step()
+        L = lossFunction.item()
+
+        return L
 
 
 def fit(train_set, train_labels, dev_set, n_iter, batch_size=100):
@@ -97,5 +103,31 @@ def fit(train_set, train_labels, dev_set, n_iter, batch_size=100):
     @return yhats: an (M,) NumPy array of binary labels for dev_set
     @return net: a NeuralNet object
     """
-    raise NotImplementedError("You need to write this part!")
-    return [], [], None
+    lrate = 0.01
+    losses = []
+    
+    # Data Standardization
+    train_mean = torch.mean(train_set)
+    train_std = torch.std(train_set)
+    train_set = (train_set - train_mean) / train_std
+
+    dev_mean = torch.mean(dev_set)
+    dev_std = torch.std(dev_set)
+    dev_set = (dev_set - dev_mean) / dev_std
+
+    net = NeuralNet(lrate, nn.CrossEntropyLoss(), len(train_set[0]), 2)
+
+    for _ in range(n_iter):
+        running_loss = 0.0
+
+        for i in range(batch_size):
+
+            labels = train_labels[batch_size * i : batch_size * (i + 1)]
+            inputs = train_set[batch_size * i : batch_size * (i + 1)]
+            loss = net.step(inputs, labels)        
+            running_loss += loss
+
+        losses.append(running_loss)
+    yhats = np.argmax(net.forward(dev_set).item(), 1)
+    
+    return losses, yhats, net
