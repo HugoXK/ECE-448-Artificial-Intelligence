@@ -21,22 +21,39 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
-def load_dataset(filename, class1, class2):
+def load_dataset(class1, class2):
+    X, Y = load_train('train', class1, class2)
+    X_test, Y_test = load_train('test', class1, class2)
+    return X, Y, X_test, Y_test
+    
+
+def load_train(filename, class1, class2):
     A = unpickle(filename)
     coarse_labels = np.array(A[b'coarse_labels'])
     desired_indices = np.nonzero((coarse_labels == class1) | (coarse_labels == class2))[0]
     X = A[b'data'][desired_indices]
     Y = coarse_labels[desired_indices]
-    test_size = int(0.25 * len(X)) # set aside 25% for testing
-    X_test = X[:test_size]
-    Y_test = Y[:test_size]
-    X = X[test_size:]
-    Y = Y[test_size:]
+    # test_size = int(0.25 * len(X)) # set aside 25% for testing
+    # X_test = X[:test_size]
+    # Y_test = Y[:test_size]
+    # X = X[test_size:]
+    # Y = Y[test_size:]
 
     Y = np.array([ float(Y[i] == class2) for i in range(len(Y))])
-    Y_test = np.array([float(Y_test[i] == class2) for i in range(len(Y_test))])
+    # Y_test = np.array([float(Y_test[i] == class2) for i in range(len(Y_test))])
 
-    return X, Y, X_test, Y_test
+    return X, Y
+
+
+def load_test(filename, class1, class2):
+    A = unpickle(filename)
+    coarse_labels = np.array(A[b'coarse_labels'])
+    desired_indices = np.nonzero((coarse_labels == class1) | (coarse_labels == class2))[0]
+    X = A[b'data'][desired_indices]
+    Y = coarse_labels[desired_indices]
+    Y = np.array([ float(Y[i] == class2) for i in range(len(Y))])
+
+    return X, Y
 
 def init_seeds(seed):
     random.seed(seed)

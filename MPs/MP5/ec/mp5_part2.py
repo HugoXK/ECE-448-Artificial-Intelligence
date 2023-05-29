@@ -45,11 +45,11 @@ def compute_accuracies(predicted_labels,dev_set,dev_labels):
     return accuracy, f1, precision, recall
 
 def main(args):
-    flag = 0
+    flag = 1
     f = p.fit
     if flag == 1:
         reader_ec.init_seeds(args.seed)
-        train_set, train_labels, dev_set, dev_labels = reader_ec.load_dataset('train',class1,class2)
+        train_set, train_labels, dev_set, dev_labels = reader_ec.load_dataset(class1,class2)
         f = p.fit_ec
     else:
         reader.init_seeds(args.seed)
