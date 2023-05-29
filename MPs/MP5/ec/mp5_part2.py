@@ -20,7 +20,7 @@ import reader_ec
 import reader
 import neuralnet as p
 from neuralnet import class1, class2
-
+import matplotlib.pyplot as plt
 import os 
 """
 This file contains the main application that is run for this MP.
@@ -45,7 +45,7 @@ def compute_accuracies(predicted_labels,dev_set,dev_labels):
     return accuracy, f1, precision, recall
 
 def main(args):
-    flag = 1
+    flag = 0
     f = p.fit
     if flag == 1:
         reader_ec.init_seeds(args.seed)
@@ -61,7 +61,7 @@ def main(args):
     train_labels = torch.tensor(train_labels, dtype=torch.int64)
     dev_set = torch.tensor(dev_set, dtype=torch.float32)
 
-    _, predicted_labels, net = f(train_set, train_labels, dev_set, args.max_iter)
+    losses, predicted_labels, net = f(train_set, train_labels, dev_set, args.max_iter)
     accuracy, f1, precision, recall = compute_accuracies(predicted_labels, dev_set, dev_labels)
 
     print("Accuracy:", accuracy)
@@ -88,6 +88,8 @@ def main(args):
     if num_parameters <= low_threshold:
         print("Num_parameters: " + str(num_parameters) + ". This is should be above " + str(threshold) + "!")
     print(num_parameters)
+    plt.plot(losses)
+    plt.savefig("out.png")
 
     # Test network architecture
     # for param_tensor in net.state_dict():

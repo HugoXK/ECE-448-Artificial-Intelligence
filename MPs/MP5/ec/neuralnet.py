@@ -53,7 +53,7 @@ class NeuralNet(nn.Module):
         super(NeuralNet, self).__init__()
         self.loss_fn = loss_fn
         self.lrate = lrate
-        self.in_size = in_size
+        self.in_size = in_size  
         self.out_size = out_size
 
         self.h_size = 32
@@ -301,17 +301,17 @@ class NeuralNet_ec(nn.Module):
             nn.Flatten(),          
             nn.Linear(128, 128),
             nn.ReLU(inplace=True),
-            # nn.Dropout(0.5),
+            nn.Dropout(0.5),
             
             nn.Linear(128, 128),
             nn.ReLU(inplace=True),
-            # nn.Dropout(0.5),
+            nn.Dropout(0.5),
     
             nn.Linear(128, self.out_size)
             )
         
-        # self.optimizer = optim.Adam(self.net.parameters(), lr=self.lrate)
-        self.optimizer = optim.SGD(self.net.parameters(), lr=self.lrate)
+        self.optimizer = optim.Adam(self.net.parameters(), lr=self.lrate)
+        # self.optimizer = optim.SGD(self.net.parameters(), lr=self.lrate)
 
     def forward(self, x):
         """Performs a forward pass through your neural net (evaluates f(x)).
@@ -340,7 +340,7 @@ class NeuralNet_ec(nn.Module):
         return loss_value.item()
 
 
-def fit_ec(train_set, train_labels, dev_set, n_iter, batch_size=100):
+def fit_ec(train_set, train_labels, dev_set, n_iter, batch_size=50):
     """ Fit a neural net. Use the full batch size.
 
     @param train_set: an (N, in_size) Tensors
@@ -359,7 +359,7 @@ def fit_ec(train_set, train_labels, dev_set, n_iter, batch_size=100):
     # raise NotImplementedError("You need to write this part!")
     # return [], [], None
     
-    lrate = 0.1
+    lrate = 0.00001
     # loss_fn = torch.nn.CrossEntropyLoss()
     loss_fn = F.cross_entropy
 
@@ -389,12 +389,20 @@ def fit_ec(train_set, train_labels, dev_set, n_iter, batch_size=100):
     net = NeuralNet_ec(lrate, loss_fn, in_size, out_size)
 
     # train n_iter (number of batches)
-    for i in range(n_iter):
-        batch = train_set[i*batch_size:(i+1)*batch_size]
-        label_batch = train_labels[i*batch_size:(i+1)*batch_size]
+    epoch = 50
+    
+    for e in range(epoch):
+        loss = []
+        for i in range(n_iter):
+            batch = train_set[i*batch_size:(i+1)*batch_size]
+            label_batch = train_labels[i*batch_size:(i+1)*batch_size]
 
-        # separate by batch, update parameters
-        losses.append(net.step(batch, label_batch))
+            # separate by batch, update parameters
+            cur_loss=net.step(batch, label_batch)
+            if cur_loss > 0:
+                loss.append(cur_loss)
+        print(loss)
+        losses.append(loss[-1])
 
     yhats = np.zeros(len(dev_set))
     Fw = net.forward(dev_set).detach().numpy()
