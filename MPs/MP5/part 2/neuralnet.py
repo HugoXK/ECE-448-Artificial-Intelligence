@@ -15,11 +15,21 @@ This is the main entry point for part 2. You should only modify code
 within this file and neuralnet.py -- the unrevised staff files will be used for all other
 files and classes when code is run, so be careful to not modify anything else.
 """
+
 import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
+from collections import OrderedDict
+from torch.utils.data import DataLoader
+
+global class1
+global class2
+class1 = 0
+class2 = 19
 
 
 class NeuralNet(nn.Module):
@@ -43,10 +53,33 @@ class NeuralNet(nn.Module):
         super(NeuralNet, self).__init__()
         self.loss_fn = loss_fn
         self.lrate = lrate
-        # 32 hidden units
-        self.net = torch.nn.Sequential(torch.nn.Linear(in_size, 32), torch.nn.ReLU(), torch.nn.Linear(32, out_size))
-        self.optims = torch.optim.SGD(self.get_parameters(), lr=self.lrate)
+        self.in_size = in_size
+        self.out_size = out_size
 
+        self.h_size = 32
+        # self.f2=nn.Sigmoid()#
+        # self.f=nn.ReLU(inplace=True)#
+
+        # self.f_in = nn.Linear(self.in_size,32)
+        # self.relu = nn.ReLU(inplace=True)
+        # self.f_out = nn.Linear(32,self.out_size)
+        # self.logsoftmax = nn.LogSoftmax()
+        # self.f1=nn.Linear(32,128)
+        # self.f2=nn.Linear(128,32)
+
+        self.net = nn.Sequential(
+            nn.Linear(self.in_size, self.h_size),
+            nn.ReLU(inplace=True),
+            # self.f1,
+            # self.relu,
+            # self.f2,
+            # self.relu,
+            # # self.conv,
+            # # self.mp,
+            nn.Linear(self.h_size, self.out_size)
+        )
+
+        self.optimizer = optim.SGD(self.parameters(), lr=self.lrate)
     # def set_parameters(self, params):
     #     """ Sets the parameters of your network.
 
@@ -67,7 +100,10 @@ class NeuralNet(nn.Module):
         @param x: an (N, in_size) Tensor
         @return y: an (N, out_size) Tensor of output from the network
         """
+        # raise NotImplementedError("You need to write this part!")
+        # return torch.ones(x.shape[0], 1)
         y = self.net(x)
+        # return self.logsoftmax(y)
         return y
 
     def step(self, x, y):
@@ -78,19 +114,21 @@ class NeuralNet(nn.Module):
         @param y: an (N,) Tensor
         @return L: total empirical risk (mean of losses) at this timestep as a float
         """
-        self.optims.zero_grad()
-        lossFunction = self.loss_fn(self.forward(x), y)
-        lossFunction.backward()
-        self.optims.step()
-        L = lossFunction.item()
+        # raise NotImplementedError("You need to write this part!")
+        # return 0.0
+        self.optimizer.zero_grad()
+        loss_value = self.loss_fn(self.forward(x), y)
+        loss_value.backward()
+        self.optimizer.step()
 
-        return L
+        # loss_value.detach().cpu().numpy()
+        return loss_value.item()
 
 
 def fit(train_set, train_labels, dev_set, n_iter, batch_size=100):
     """ Fit a neural net. Use the full batch size.
 
-    @param train_set: an (N, in_size) Tensor
+    @param train_set: an (N, in_size) Tensors
     @param train_labels: an (N,) Tensor
     @param dev_set: an (M,) Tensor
     @param n_iter: an int, the number of epoches of training
@@ -103,31 +141,41 @@ def fit(train_set, train_labels, dev_set, n_iter, batch_size=100):
     @return yhats: an (M,) NumPy array of binary labels for dev_set
     @return net: a NeuralNet object
     """
-    lrate = 0.01
+    # raise NotImplementedError("You need to write this part!")
+    # return [], [], None
+
+    lrate = 1e-2
+    # loss_fn = torch.nn.CrossEntropyLoss()
+    loss_fn = F.cross_entropy
+    #print(train_set.size())
+    #print(dev_set.size())
+    in_size = train_set.size()[1]  # RGB image size 32*32*3 = 3072
+    out_size = 2  # Number of Labels
     losses = []
-    
-    # Data Standardization
+
+    # normalized train set x = (z-mean)/std
     train_mean = torch.mean(train_set)
     train_std = torch.std(train_set)
     train_set = (train_set - train_mean) / train_std
 
+    # normalized test set y = (z-mean)/std
     dev_mean = torch.mean(dev_set)
     dev_std = torch.std(dev_set)
     dev_set = (dev_set - dev_mean) / dev_std
 
-    net = NeuralNet(lrate, nn.CrossEntropyLoss(), len(train_set[0]), 2)
+    net = NeuralNet(lrate, loss_fn, in_size, out_size)
 
-    for _ in range(n_iter):
-        running_loss = 0.0
+    # train n_iter (number of batches)
+    for i in range(n_iter):
+        batch = train_set[i*batch_size:(i+1)*batch_size]
+        label_batch = train_labels[i*batch_size:(i+1)*batch_size]
+        # separate by batch, update parameters
+        losses.append(net.step(batch, label_batch))
 
-        for i in range(batch_size):
-
-            labels = train_labels[batch_size * i : batch_size * (i + 1)]
-            inputs = train_set[batch_size * i : batch_size * (i + 1)]
-            loss = net.step(inputs, labels)        
-            running_loss += loss
-
-        losses.append(running_loss)
-    yhats = np.argmax(net.forward(dev_set).item(), 1)
-    
+    yhats = np.zeros(len(dev_set))
+    Fw = net.forward(dev_set).detach().numpy()
+    # print(type(Fw))
+    for i, r in enumerate(Fw):
+        # taking the index of the maximum of the two outputs (argmax).
+        yhats[i] = np.argmax(Fw[i])
     return losses, yhats, net
