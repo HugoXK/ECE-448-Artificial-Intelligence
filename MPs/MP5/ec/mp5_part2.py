@@ -19,8 +19,9 @@ import torch
 import reader_ec
 import reader
 import neuralnet as p
-from neuralnet import class1, class2
+# from neuralnet import class1, class2
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import os 
 """
 This file contains the main application that is run for this MP.
@@ -44,41 +45,73 @@ def compute_accuracies(predicted_labels,dev_set,dev_labels):
 
     return accuracy, f1, precision, recall
 
+def logging(log:str):
+    with open("log.txt","a") as f:
+        f.write(log+"\n")
+    
+
 def main(args):
-    flag = 0
-    f = p.fit
-    if flag == 1:
+    open("log.txt","w").close()
+    pairs = [(i,j) for i in range(20) for j in range(20) if i != j]
+    pairs = [(0,19)]
+    accuracy_list=[]
+    f1_list=[]
+    precision_list=[]
+    recall_list=[]
+    for class1,class2 in pairs:
+        logging("(class1,class2) :{}".format((class1,class2)))
+        
         reader_ec.init_seeds(args.seed)
         train_set, train_labels, dev_set, dev_labels = reader_ec.load_dataset(class1,class2)
         f = p.fit_ec
-    else:
-        reader.init_seeds(args.seed)
-        train_set, train_labels, dev_set, dev_labels = reader.load_dataset('mp5_data')
-        f = p.fit_ec
+        # else:
+        #     reader.init_seeds(args.seed)
+        #     train_set, train_labels, dev_set, dev_labels = reader.load_dataset('mp5_data')
+        #     f = p.fit_ec
+        train_set = torch.tensor(train_set, dtype=torch.float32)
+        train_labels = torch.tensor(train_labels, dtype=torch.int64)
+        dev_set = torch.tensor(dev_set, dtype=torch.float32)
+
+        losses, predicted_labels, net = f(train_set, train_labels, dev_set, args.max_iter)
+        accuracy, f1, precision, recall = compute_accuracies(predicted_labels, dev_set, dev_labels)
+
+        # print("Accuracy:", accuracy)
+        # print("F1-Score:", f1)
+        # print("Precision:", precision)
+        # print("Recall:", recall)
         
+        logging("Accuracy:{}".format(accuracy))
+        logging("F1-Score:{}".format(f1))
+        logging("Precision:{}".format(precision))
+        logging("Recall:{}".format(recall))
+        
+        accuracy_list.append(accuracy)
+        f1_list.append(f1)
+        precision_list.append(precision)
+        recall_list.append(recall)
 
-    train_set = torch.tensor(train_set, dtype=torch.float32)
-    train_labels = torch.tensor(train_labels, dtype=torch.int64)
-    dev_set = torch.tensor(dev_set, dtype=torch.float32)
+        # Check if dev accuracy reaches threshold
+        total_score = 0
+        for threshold in [0.84, 0.9]:
+            if (accuracy >= threshold):
+                total_score += 5
+                # print("+5 points for dev accuracy above", str(threshold))
+            else:
+                # print("Dev accuracy needs to be above", str(threshold))
+                break
+        logging("total_score :{}".format(total_score))
+        plt.figure()
+        plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+        plt.plot(losses)
+        plt.savefig("figs/out-" + "{}".format((class1,class2)) +".png")    
+        plt.close()
 
-    losses, predicted_labels, net = f(train_set, train_labels, dev_set, args.max_iter)
-    accuracy, f1, precision, recall = compute_accuracies(predicted_labels, dev_set, dev_labels)
-
-    print("Accuracy:", accuracy)
-    print("F1-Score:", f1)
-    print("Precision:", precision)
-    print("Recall:", recall)
-
-    # Check if dev accuracy reaches threshold
-    total_score = 0
-    for threshold in [0.84, 0.9]:
-        if (accuracy >= threshold):
-            total_score += 5
-            print("+5 points for dev accuracy above", str(threshold))
-        else:
-            print("Dev accuracy needs to be above", str(threshold))
-            break
-
+    logging("average accuracy:{}".format(np.mean(accuracy_list)))
+    logging("average f1:{}".format(np.mean(f1_list)))
+    logging("average precision:{}".format(np.mean(precision_list)))
+    logging("average recall:{}".format(np.mean(recall_list)))
+    
+    
     # Test number of parameters
     num_parameters = sum([np.prod(w.shape) for w in net.parameters()])
     threshold = 500000
@@ -88,12 +121,11 @@ def main(args):
     if num_parameters <= low_threshold:
         print("Num_parameters: " + str(num_parameters) + ". This is should be above " + str(threshold) + "!")
     print(num_parameters)
-    plt.plot(losses)
-    plt.savefig("out.png")
+    
 
     # Test network architecture
-    # for param_tensor in net.state_dict():
-    #     print(param_tensor, "\t", net.state_dict()[param_tensor].size())
+    for param_tensor in net.state_dict():
+        print(param_tensor, "\t", net.state_dict()[param_tensor].size())
     # state_dict = [torch.Size([32, 3072]), torch.Size([32]), torch.Size([2, 32]), torch.Size([2])]
     # state_dict_student = []
     # for param_tensor in net.state_dict():
@@ -103,8 +135,6 @@ def main(args):
     #     print('The architecture matches with the given one')
     # else:
     #     print('The architecture used is different than what was asked for')
-
-
 
     torch.save(net, "net.model")
 
